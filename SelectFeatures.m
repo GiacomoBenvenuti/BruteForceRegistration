@@ -1,4 +1,6 @@
 function varargout = SelectFeatures(varargin)
+% [tform fix_points moving_points] = SelectFeatures (Img1, Img2)
+%
 %
 %-------------------------------------------
 % by Giacomo Benvenuti
@@ -61,11 +63,8 @@ handles.output = obj;
 
 handles.Features_anchors = [];
 handles.Hpoints = [];
+handles.tform = [] ;
 data.text2.String='Use the Zoom and Pan tools to visualize similar areas in the two images. Press NEW ANCHOR to start' ;
-
-
-
-
 
 
 % Update handles structure
@@ -84,9 +83,15 @@ function varargout = SelectFeatures_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Get default command line output from handles structure
 data = guidata(hObject);
-varargout{1} =  data.Features_anchors ;
-varargout{2} =  data.Features_anchors ;
-%delete(handles.figure1);
+
+
+varargout{1} =  data.tform ;
+movingpoints = squeeze(data.Features_anchors(:,1,:))';
+fixpoints = squeeze(data.Features_anchors(:,2,:))';
+varargout{2} =  fixpoints ;
+varargout{3} =  movingpoints ;
+
+delete(handles.figure1);
 
 
 % --- Executes on button press in pushbutton1.
@@ -100,7 +105,6 @@ cla
 axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
 end
-
 
 
 col = 'rgbymc';
@@ -144,7 +148,7 @@ data.text2.String='Click SUBMIT to check the transformation'
 % --- Executes on button press in submit.
 function submit_Callback(obj, eventdata, handles)
 data = guidata(obj);
-SelectFeatures_OutputFcn(obj, eventdata, handles)
+
 axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
 I = imadjust(handles.Img1) ;
@@ -169,7 +173,7 @@ switch v
     case 5 
             tform= fitgeotrans(movingpoints, fixpoints,'pwl');
 end
-
+handles.tform = tform ;
 Ir = imwarp(I,tform,'OutputView', imref2d(size(I)));
 
 % Axes 1
@@ -183,10 +187,10 @@ ylim([1 size(Ir,2)])
 axes(data.axes2); cla
 [x y] = Segmentation(Ir);
 imshow(J); hold on
-h = scatter(x,y,1,'.')
+h = scatter(x,y,1,'.');
 h.MarkerEdgeColor = 'r' ;
 h.MarkerFaceColor = 'none'
-h.MarkerEdgeAlpha = .1
+h.MarkerEdgeAlpha = .1;
 
 data.text2.String = 'If the match is good, close te GUI window to get the GUI function output. To try again push NEW ANCHOR'
 
@@ -320,27 +324,21 @@ end
 
 % --------------------------------------------------------------------
 function uitoggletool1_OnCallback(hObject, eventdata, handles)
-% hObject    handle to uitoggletool1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
 disp('Zoom ON')
 zoom on
 
 
 % --------------------------------------------------------------------
 function uitoggletool2_OnCallback(hObject, eventdata, handles)
-% hObject    handle to uitoggletool2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
 disp('Zoom OUT')
 zoom out
 
 
 % --------------------------------------------------------------------
 function uitoggletool3_OnCallback(hObject, eventdata, handles)
-% hObject    handle to uitoggletool3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
 pan on
 
 
