@@ -156,9 +156,20 @@ movingpoints = squeeze(data.Features_anchors(:,1,:))';
 fixpoints = squeeze(data.Features_anchors(:,2,:))';
 
 % Registration algorithm
-%tform= fitgeotrans(movingpoints, fixpoints,'polynomial',2);
-tform= fitgeotrans(movingpoints, fixpoints,'projective');
-%tform= fitgeotrans(movingpoints, fixpoints,'nonreflectivesimilarity');
+v = data.methods.Value ;% pop-up selection
+switch v
+    case 1
+        tform= fitgeotrans(movingpoints, fixpoints,'projective');
+    case 2
+        tform= fitgeotrans(movingpoints, fixpoints,'nonreflectivesimilarity');
+    case 3
+        tform= fitgeotrans(movingpoints, fixpoints,'affine');
+    case 4
+          tform= fitgeotrans(movingpoints, fixpoints,'polynomial',2);
+    case 5 
+            tform= fitgeotrans(movingpoints, fixpoints,'pwl');
+end
+
 Ir = imwarp(I,tform,'OutputView', imref2d(size(I)));
 
 % Axes 1

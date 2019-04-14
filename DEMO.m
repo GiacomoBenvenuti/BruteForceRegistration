@@ -32,5 +32,6 @@ subplot(122); imshow(J);
 % We need to define some global variable that will be 
 % modified by our function
 J2 = imresize(J,[100 100]);
+
 %J2 = imrotate(J2,30)
 T = SelectFeatures(I,J); %delete(gcf)
