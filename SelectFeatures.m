@@ -54,7 +54,8 @@ handles.Features_anchors = [];
 guidata(obj, handles);
 
 % UIWAIT makes SelectFeatures wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+ uiwait(handles.figure1);
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -64,8 +65,8 @@ function varargout = SelectFeatures_OutputFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Get default command line output from handles structure
-
-varargout{1} = handles;
+data = guidata(hObject);
+varargout{1} =  data.Features_anchors ;
 %delete(handles.figure1);
 
 
@@ -82,7 +83,7 @@ end
 col = 'rgbymc';
 for i = 1:6
 data.text2.String='Select a feature in Img A...' ;
-[x,y] = ginput(1);
+try [x,y] = ginput(1); catch end
 F(:,1,i) = [x,y];
 hold on 
 scatter(x,y,60,['+' col(i)])
@@ -106,6 +107,7 @@ Selected_Points = F;
 % --- Executes on button press in submit.
 function submit_Callback(obj, eventdata, handles)
 data = guidata(obj);
+SelectFeatures_OutputFcn(obj, eventdata, handles)
 axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
 I = imadjust(handles.Img1) ;
@@ -229,6 +231,7 @@ delete(h);
 % --- Executes on slider movement.
 function Control_segmentation_Callback(hObject, eventdata, handles)
 
+ Zoom on
 data = guidata(hObject);
 t =round(get(hObject,'Value')) ; 
 
@@ -258,3 +261,13 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'Max',1);
     set(hObject,'Min',0);
 end
+
+
+% --------------------------------------------------------------------
+function uitoggletool1_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+disp('selection')
+zoom on
+
