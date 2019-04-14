@@ -79,8 +79,8 @@ axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
 end
 
-col = 'rgb';
-for i = 1:3
+col = 'rgbymc';
+for i = 1:6
 data.text2.String='Select a feature in Img A...' ;
 [x,y] = ginput(1);
 F(:,1,i) = [x,y];
@@ -108,62 +108,32 @@ function submit_Callback(obj, eventdata, handles)
 data = guidata(obj);
 axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
-I = handles.Img1 ;
-J = handles.Img2;
-fixpoints = squeeze(data.Features_anchors(:,1,:))';
-movingpoints = squeeze(data.Features_anchors(:,2,:))';
+I = imadjust(handles.Img1) ;
+J =imadjust( handles.Img2);
 
-tform= fitgeotrans(movingpoints, fixpoints,'NonreflectiveSimilarity');
+Selected_Points = data.Features_anchors ;
 
-Jr = imwarp(J,tform,'OutputView', imref2d(size(I)));
+movingpoints = squeeze(data.Features_anchors(:,1,:))';
+fixpoints = squeeze(data.Features_anchors(:,2,:))';
 
-u = [0 1]; 
-v = [0 0]; 
-[x, y] = transformPointsForward(tform, u, v); 
-dx = x(2) - x(1); 
-dy = y(2) - y(1); 
-angle = (180/pi) * atan2(dy, dx) ;
-scale = 1 / sqrt(dx^2 + dy^2);
+% Registration algorithm
+tform= fitgeotrans(movingpoints, fixpoints,'polynomial',2);
+Ir = imwarp(I,tform,'OutputView', imref2d(size(I)));
 
-clear x y h
-Trans_Param.XOFF = tform.T(3,1) ; 
-Trans_Param.YOFF= tform.T(3,2) ; 
-Trans_Param.Scaling = scale;
-Trans_Param.Rotation = angle;
+% Axes 1
+axes(data.axes1); cla
+imshow(Ir)
 
-axes(data.axes1);
-% Create square
-h = patch('XData',[Trans_Param.XOFF Trans_Param.XOFF ...
-    Trans_Param.XOFF+ 504./Trans_Param.Scaling,Trans_Param.XOFF+504./Trans_Param.Scaling],...
-    'YData',[Trans_Param.YOFF Trans_Param.YOFF+504./Trans_Param.Scaling ...
-    Trans_Param.YOFF+504./Trans_Param.Scaling Trans_Param.YOFF],...
-    'FaceColor','none','EdgeColor','g','LineWidth',2);
-rotate(h, [0 0 1],Trans_Param.Rotation,[Trans_Param.XOFF,Trans_Param.YOFF,0]);
-
-%----------------------
+% Axes 2
 axes(data.axes2); cla
-MaSk = roipoly(I,h.Vertices(:,1),h.Vertices(:,2));
-tm =I ;
-[row col] = find(MaSk==1) ;
-tm2= I(min(row):max(row),min(col):max(col));
-tm2 = imresize(tm2, size(J));
-tm2 = imadjust(tm2); J2 = imadjust(J);
+[x y] = Segmentation(Ir);
+imshow(J); hold on
+h = scatter(x,y,1,'.')
+h.MarkerEdgeColor = 'r' ;
+h.MarkerFaceColor = 'none'
+h.MarkerEdgeAlpha = .1
 
-%imshowpair(tm3,J2,'blend')
-imshow(J2); hold on
-handles.NewImage = tm2;
-[x,y] = Segmentation(tm2,5);
-h=scatter(x,y,'.')
-h.MarkerEdgeColor = 'r';
-h.MarkerFaceColor = 'none';
-handles.Hcontour = h;
-handles.Trans_Param =Trans_Param;
-
-Trans_Param_GUI = Trans_Param;
-
-Retino_Mask = min(row):max(row),min(col):max(col);
-% Update handles structure
-  guidata(obj, handles);
+guidata(obj, handles);
 
 % --- Executes on button press in load_imageA.
 function load_imageA_Callback(obj, eventdata, handles)
@@ -205,14 +175,46 @@ else
 delete(hObject);
 end
 
-function [x y] = Segmentation(I,Segm_Smooth)
+
+function [ col row] = Segmentation(varargin)
+J = varargin{1} ;
+
+if nargin>1
+ n = varargin{2} ;  
+else
+ n = .12 ;   
+end
+J = imadjust(J);
+Jr = rangefilt(J);
+Jr2  = mat2gray(Jr);
+
+f = 1/9*ones(3);
+Jr2 = filter2(f,Jr2);
+
+I  = imbinarize(Jr2,n);
+
+se     = strel('cube',3);
+I       = imerode(I,se);
+
+
+[row col] = find(I==1);
+
+
+
+function [x y] = Segmentation2(I,Segm_Param,Segm_Smooth,Segm_thr)
 Segm_type = 'zerocross';
-Segm_Param = 0.000000005;
-BW = edge(I, Segm_type , Segm_Param);
+normImage = mat2gray(I);
+BW = edge(normImage, Segm_type , Segm_Param);
 f = 1/9*ones(5);
 BW2 = filter2(f,BW);
 BW3 = im2bw(BW2);
-BW4 = imfill(BW3,'holes');
+filled = imfill(BW3,'holes');
+
+holes = filled & ~BW3;
+bigholes = bwareaopen(holes, Segm_thr);
+smallholes = holes & ~bigholes;
+BW4 = BW3 | smallholes;
+
 BW5 = abs(BW4-1);
 f = 1/9*ones(round(Segm_Smooth));
 BW6 = filter2(f,BW5);
@@ -227,16 +229,18 @@ delete(h);
 % --- Executes on slider movement.
 function Control_segmentation_Callback(hObject, eventdata, handles)
 
-Segm_Smooth=get(hObject,'Value') ;
-delete(handles.Hcontour);
-I = handles.NewImage;
-[x y] = Segmentation(I,Segm_Smooth)
-h=scatter(x,y,10,'.')
-h.MarkerEdgeColor = 'r';
-h.MarkerFaceColor = 'none';
+data = guidata(hObject);
+t =round(get(hObject,'Value')) ; 
 
-handles.Hcontour = h;
-%handles.Trans_Param =Trans_Param;
+% Axes 2
+axes(data.axes2); cla
+[x y] = Segmentation(Ir,t);
+imshow(J); hold on
+h = scatter(x,y,1,'.')
+h.MarkerEdgeColor = 'r' ;
+h.MarkerFaceColor = 'none'
+h.MarkerEdgeAlpha = .1
+
 guidata(hObject, handles);
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
@@ -250,4 +254,7 @@ function Control_segmentation_CreateFcn(hObject, eventdata, handles)
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
+    set(hObject,'Value',.12);
+    set(hObject,'Max',1);
+    set(hObject,'Min',0);
 end

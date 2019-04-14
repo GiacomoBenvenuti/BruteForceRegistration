@@ -27,8 +27,9 @@ figure;
 subplot(121); imshow(I); 
 subplot(122); imshow(J);
 
+
 %% Select the same features in the two images
 % We need to define some global variable that will be 
 % modified by our function
-global Trans_Param_GUI Selected_Points RetinoMask
+global Selected_Points
 T = SelectFeatures(I,J); %delete(gcf)
