@@ -31,5 +31,6 @@ subplot(122); imshow(J);
 %% Select the same features in the two images
 % We need to define some global variable that will be 
 % modified by our function
-global Selected_Points
+J2 = imresize(J,[100 100]);
+%J2 = imrotate(J2,30)
 T = SelectFeatures(I,J); %delete(gcf)

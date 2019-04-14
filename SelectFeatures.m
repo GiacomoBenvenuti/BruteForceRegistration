@@ -39,17 +39,35 @@ if nargin >0
 handles.Img1 = varargin{1};
 axes(data.axes1)
 imshow(imadjust(handles.Img1))
+data.axes1.XTick = [];
+data.axes1.XColor = 'r'
+data.axes1.YTick = [];
+data.axes1.YColor = 'r'
+data.axes1.LineWidth = 3;
 end
 if nargin >1 
 handles.Img2 = varargin{2};
 axes(data.axes2)
 imshow(imadjust(handles.Img2))
+data.axes2.XTick = [];
+data.axes2.XColor = 'r'
+data.axes2.YTick = [];
+data.axes2.YColor = 'r'
+data.axes2.LineWidth = 3;
 end
 
 % Choose default command line output for SelectFeatures
 handles.output = obj;
 
 handles.Features_anchors = [];
+handles.Hpoints = [];
+data.text2.String='Use the Zoom and Pan tools to visualize similar areas in the two images. Press NEW ANCHOR to start' ;
+
+
+
+
+
+
 % Update handles structure
 guidata(obj, handles);
 
@@ -67,40 +85,59 @@ function varargout = SelectFeatures_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 data = guidata(hObject);
 varargout{1} =  data.Features_anchors ;
+varargout{2} =  data.Features_anchors ;
 %delete(handles.figure1);
 
 
 % --- Executes on button press in pushbutton1.
 function pushbutton1_Callback(obj, eventdata, handles)
 data = guidata(obj);
+
 % RESET selections
 if ~isempty(handles.Features_anchors)
 handles.Features_anchors = [];
+cla
 axes(data.axes1);imshow(imadjust(handles.Img1));
 axes(data.axes2);imshow(imadjust(handles.Img2));
 end
 
+
+
 col = 'rgbymc';
+ct = 0;
 for i = 1:6
-data.text2.String='Select a feature in Img A...' ;
+ ct = ct+1
+data.text2.String=[ '(' num2str(i) ' / 6) Select a feature in Img A... (press enter to esc)'] ;
+axes(data.axes1); axis on
+
 try [x,y] = ginput(1); catch end
 F(:,1,i) = [x,y];
 hold on 
-scatter(x,y,60,['+' col(i)])
+hp(ct) = scatter(x,y,60,['+' col(i)])
+
+axis off 
 data.text2.String='Cool!' ;
 pause (.5)
 
-data.text2.String='Select the same feature in Img B...' ;
+% Select fig B
+axes(data.axes2); axis on
+data.text2.String=[ '(' num2str(i) ' / 6) Select coresponding feature in Img B.. (press enter to esc).'] ;
 axes(data.axes2);
 [x,y] = ginput(1);
 F(:,2,i) = [x,y];
 hold on 
-scatter(x,y,60,['+' col(i)])
+hp(ct) = scatter(x,y,60,['+' col(i)])
+
+axis off
 data.text2.String='Cool!' ;
 pause (.5)
 end
 handles.Features_anchors = F;
+handles.Hpoints = hp;
 Selected_Points = F;
+
+data.text2.String='Click SUBMIT to check the transformation' 
+
  % Update handles structure
  guidata(obj, handles);
 
@@ -119,12 +156,17 @@ movingpoints = squeeze(data.Features_anchors(:,1,:))';
 fixpoints = squeeze(data.Features_anchors(:,2,:))';
 
 % Registration algorithm
-tform= fitgeotrans(movingpoints, fixpoints,'polynomial',2);
+%tform= fitgeotrans(movingpoints, fixpoints,'polynomial',2);
+tform= fitgeotrans(movingpoints, fixpoints,'projective');
+%tform= fitgeotrans(movingpoints, fixpoints,'nonreflectivesimilarity');
 Ir = imwarp(I,tform,'OutputView', imref2d(size(I)));
 
 % Axes 1
 axes(data.axes1); cla
 imshow(Ir)
+xlim([1 size(Ir,1)])
+ylim([1 size(Ir,2)])
+
 
 % Axes 2
 axes(data.axes2); cla
@@ -134,6 +176,8 @@ h = scatter(x,y,1,'.')
 h.MarkerEdgeColor = 'r' ;
 h.MarkerFaceColor = 'none'
 h.MarkerEdgeAlpha = .1
+
+data.text2.String = 'If the match is good, close te GUI window to get the GUI function output. To try again push NEW ANCHOR'
 
 guidata(obj, handles);
 
@@ -268,6 +312,45 @@ function uitoggletool1_OnCallback(hObject, eventdata, handles)
 % hObject    handle to uitoggletool1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('selection')
+disp('Zoom ON')
 zoom on
 
+
+% --------------------------------------------------------------------
+function uitoggletool2_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+disp('Zoom OUT')
+zoom out
+
+
+% --------------------------------------------------------------------
+function uitoggletool3_OnCallback(hObject, eventdata, handles)
+% hObject    handle to uitoggletool3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+pan on
+
+
+% --- Executes on selection change in methods.
+function methods_Callback(hObject, eventdata, handles)
+% hObject    handle to methods (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns methods contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from methods
+
+
+% --- Executes during object creation, after setting all properties.
+function methods_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to methods (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
