@@ -1,5 +1,7 @@
+### :octopus: [giacomox - Home](https://giacomox.github.io/#/RetinoProj/README)
+
 # BruteForceRegistration
-Image registration by selecting by hand  corresponding features locations in two images. This repository contains
+Image registration by selecting by hand corresponding features locations in two images. This repository contains
 a GUI function to select corresponding features in two images (**SelectFeatures.m**).
 To see how it works run the script DEMO.m
 
