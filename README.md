@@ -5,13 +5,9 @@ Image registration by selecting by hand corresponding features locations in two 
 a GUI function to select corresponding features in two images (**SelectFeatures.m**).
 To see how it works run the script DEMO.m
 
-<img src="./figures/SelGIF.gif" width="70%"
-align="middle"
-style="position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;">
-
+<p align="center">
+<img src="./figures/SelGIF.gif" width="60%">
+</p>
 
 ## Fit geometric transformation
 * The main algorithm in this function is the one that fits geometric transformation to control point pairs
@@ -24,9 +20,6 @@ style="position: relative;
 <img src="./figures/selection.png" width="100%" align="center" margin-left= auto>
 
 *
-<img src="./figures/test.png" width="70%"
-align="middle"
-style="position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;">
+<p align="center">
+<img src="./figures/test.png" width="50%">
+</p>
