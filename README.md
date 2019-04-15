@@ -6,6 +6,7 @@ a GUI function to select corresponding features in two images (**SelectFeatures.
 To see how it works run the script DEMO.m
 
 <img src="./figures/SelGIF.gif" width="70%"
+align="middle"
 style="position: relative;
   display: block;
   margin-left: auto;
@@ -24,6 +25,7 @@ style="position: relative;
 
 *
 <img src="./figures/test.png" width="70%"
+align="middle"
 style="position: relative;
   display: block;
   margin-left: auto;
