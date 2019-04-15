@@ -5,7 +5,11 @@ Image registration by selecting by hand corresponding features locations in two 
 a GUI function to select corresponding features in two images (**SelectFeatures.m**).
 To see how it works run the script DEMO.m
 
-<img src="./figures/SelGIF.gif" width="80%" align="center">
+<img src="./figures/SelGIF.gif" width="70%"
+style="position: relative;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;">
 
 
 ## Fit geometric transformation
@@ -19,4 +23,8 @@ To see how it works run the script DEMO.m
 <img src="./figures/selection.png" width="100%" align="center" margin-left= auto>
 
 *
-<img src="./figures/test.png" width="50%" align="center">
+<img src="./figures/test.png" width="70%"
+style="position: relative;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;">
