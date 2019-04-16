@@ -13,6 +13,11 @@ To see how it works run the script DEMO.m
 * The main algorithm in this function is the one that fits geometric transformation to control point pairs
 ([**fitgeotrans.m**](https://www.mathworks.com/help/images/ref/fitgeotrans.html))
 
+```Matlab
+tform = fitgeotrans(moving_points, fix_points,'projective');
+I2 = imwarp(I,tform,'OutputView', imref2d(size(I)));
+```
+
 * The two images should have the same resolution.
 
 * Try to select 2D features like corners, in different positions of the image.
