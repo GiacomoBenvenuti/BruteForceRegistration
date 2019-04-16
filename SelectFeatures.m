@@ -98,26 +98,18 @@ delete(handles.figure1);
 function pushbutton1_Callback(obj, eventdata, handles)
 data = guidata(obj);
 
-% RESET selections
-if ~isempty(handles.Features_anchors)
-handles.Features_anchors = [];
-cla
-axes(data.axes1);imshow(imadjust(handles.Img1));
-axes(data.axes2);imshow(imadjust(handles.Img2));
-end
-
-
-col = 'rgbymc';
+N = str2num(data.points_num.String);
+col = jet(N);
 ct = 0;
-for i = 1:6
+for i = 1:N
  ct = ct+1
-data.text2.String=[ '(' num2str(i) ' / 6) Select a feature in Img A... (press enter to esc)'] ;
+data.text2.String=[ '(' num2str(i) ' / '  num2str(N) ') Select a feature in Img A... (press enter to esc)'] ;
 axes(data.axes1); axis on
 
 try [x,y] = ginput(1); catch end
 F(:,1,i) = [x,y];
 hold on 
-hp(ct) = scatter(x,y,60,['+' col(i)])
+hp(ct) = scatter(x,y,60,'+','MarkerEdgeColor',col(i,:))
 
 axis off 
 data.text2.String='Cool!' ;
@@ -125,12 +117,12 @@ pause (.5)
 
 % Select fig B
 axes(data.axes2); axis on
-data.text2.String=[ '(' num2str(i) ' / 6) Select coresponding feature in Img B.. (press enter to esc).'] ;
+data.text2.String=[ '(' num2str(i) ' / ' num2str(N) ') Select coresponding feature in Img B.. (press enter to esc).'] ;
 axes(data.axes2);
-[x,y] = ginput(1);
+try [x,y] = ginput(1); catch end
 F(:,2,i) = [x,y];
 hold on 
-hp(ct) = scatter(x,y,60,['+' col(i)])
+hp(ct) = scatter(x,y,60,'+','MarkerEdgeColor',col(i,:))
 
 axis off
 data.text2.String='Cool!' ;
@@ -363,3 +355,33 @@ function methods_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function points_num_Callback(hObject, eventdata, handles)
+
+%get(hObject,'String');
+N =str2num(get(hObject,'String')) 
+
+
+% --- Executes during object creation, after setting all properties.
+function points_num_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to points_num (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+    set(hObject,'String','6');
+end
+
+
+% --- Executes on button press in pushbutton7.
+function pushbutton7_Callback(hObject, eventdata, handles)
+data = guidata(hObject);
+% RESET selections (kee)
+handles.Features_anchors = [];
+axes(data.axes1);xl = xlim; yl=ylim; imshow(imadjust(handles.Img1)); xlim(xl); ylim(yl);
+axes(data.axes2);xl = xlim; yl=ylim;imshow(imadjust(handles.Img2)); xlim(xl); ylim(yl);
