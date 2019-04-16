@@ -62,10 +62,7 @@ imshow(I2); hold on
 title('Transformation ')
 %% Apply same transformation to the Retino matrix
 
-
-%%
 clear M J2
-
 tform= fitgeotrans( fixpoints,movingpoints,'projective');
 J2 = imwarp(J,tform,'OutputView', imref2d(size(I)));
 
