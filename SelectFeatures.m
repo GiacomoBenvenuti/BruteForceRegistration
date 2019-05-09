@@ -66,7 +66,9 @@ handles.Hpoints = [];
 handles.tform = [] ;
 handles.COSFIREout = 0;
 handles.Control_segmentation.Visible = 'off';
-data.text2.String='Use the Zoom and Pan tools to visualize similar areas in the two images. Press NEW ANCHOR to start' ;
+data.text2.String=['(1) Use the Zoom and Pan tools to visualize similar areas in the two images. ' ... 
+    '(2) Set the number of anchors you want to select ' ...
+    '(3) Press NEW ANCHOR to start the selection'] ;
 
 
 % Update handles structure
@@ -105,7 +107,7 @@ col = jet(N);
 ct = 0;
 for i = 1:N
  ct = ct+1
-data.text2.String=[ '(' num2str(i) ' / '  num2str(N) ') Select a feature in Img A... (press enter to esc)'] ;
+data.text2.String=[ '(' num2str(i) ' / '  num2str(N) ') Select a feature in Img A... (press enter to esc and RESET to restart)'] ;
 axes(data.axes1); axis on
 
 try [x,y] = ginput(1); catch end
@@ -119,7 +121,7 @@ pause (.5)
 
 % Select fig B
 axes(data.axes2); axis on
-data.text2.String=[ '(' num2str(i) ' / ' num2str(N) ') Select coresponding feature in Img B.. (press enter to esc).'] ;
+data.text2.String=[ '(' num2str(i) ' / ' num2str(N) ') Select coresponding feature in Img B.. (press enter to esc and RESET to restart).'] ;
 axes(data.axes2);
 try [x,y] = ginput(1); catch end
 F(:,2,i) = [x,y];
@@ -194,9 +196,7 @@ h.MarkerFaceColor = 'none'
 h.MarkerEdgeAlpha = .1;
 end
 
-
-
-data.text2.String = 'If the match is good, close te GUI window to get the GUI function output. To try again push NEW ANCHOR'
+data.text2.String = 'If the match is good, close te GUI window to get the GUI function output. To try again push RESET'
 handles.TransIMG = Ir; % cropped image
 guidata(obj, handles);
 
@@ -428,7 +428,7 @@ axes(data.axes2);xl = xlim; yl=ylim;imshow(imadjust(handles.Img2)); xlim(xl); yl
 function COSFIRE_Callback(hObject, eventdata, handles)
 data = guidata(hObject);
 handles.COSFIREout =  get(hObject,'Value');
-data.text2.String = 'Be sure COSFIRE repository is added to the path';
+data.text2.String = 'Be sure COSFIRE repository is added to the path. Use the slider on the right to refine the contour';
 if handles.COSFIREout 
 handles.Control_segmentation.Visible = 'on';
 else
