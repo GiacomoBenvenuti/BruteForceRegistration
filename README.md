@@ -28,3 +28,9 @@ I2 = imwarp(I,tform,'OutputView', imref2d(size(I)));
 <p align="center">
 <img src="./figures/test.png" width="50%">
 </p>
+
+## Vascualture Segmentation using COSFIRE method
+
+1. Clone the repository COSFIRE Segmentation (side bar)
+2. Run the script /COSFIRE/ExampleBloodVesselSegmentation.m . This will ask you to install a c++ file.
+3. Add COSFIRE dir to Matlab path
