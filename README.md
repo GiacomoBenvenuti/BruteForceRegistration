@@ -1,8 +1,7 @@
 ### :octopus: [giacomox - Home](https://giacomox.github.io/#/RetinoProj/README) :octopus:
 
 # Brute Force Registration
-Image registration by selecting by hand corresponding features locations in two images. This repository contains
-a GUI function to select corresponding features in two images (**SelectFeatures.m**).
+Image registration by selecting corresponding features' locations in two images by hand (e.g. Vasculature corners). This repository contains a GUI function to select corresponding features in two images and find the best transformation to match them (**SelectFeatures.m**). 
 To see how it works run the script DEMO.m
 
 <p align="center">
@@ -32,5 +31,5 @@ I2 = imwarp(I,tform,'OutputView', imref2d(size(I)));
 ## Vascualture Segmentation using COSFIRE method
 
 1. Clone the repository COSFIRE Segmentation (side bar)
-2. Run the script /COSFIRE/ExampleBloodVesselSegmentation.m . This will ask you to install a c++ file.
-3. Add COSFIRE dir to Matlab path
+2. Run the script /COSFIRE/ExampleBloodVesselSegmentation.m . This will ask you to install a c++ file (**dilateDisc.c**).
+3. Add COSFIRE dir to Matlab path before checking the box "cosfire" in the registration app
