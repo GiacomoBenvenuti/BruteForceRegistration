@@ -64,6 +64,8 @@ handles.output = obj;
 handles.Features_anchors = [];
 handles.Hpoints = [];
 handles.tform = [] ;
+handles.COSFIREout = 0;
+handles.Control_segmentation.Visible = 'off';
 data.text2.String='Use the Zoom and Pan tools to visualize similar areas in the two images. Press NEW ANCHOR to start' ;
 
 
@@ -177,15 +179,25 @@ ylim([1 size(Ir,2)])
 
 % Axes 2
 axes(data.axes2); cla
-[x y] = Segmentation(Ir);
+
 imshow(J); hold on
+if handles.COSFIREout
+ cs = COSFIRESegmentation(imadjust(Ir)); 
+handles.cs = cs; 
+[c h]= contour(cs.segmented,[10 10]);
+h.Color = 'r';
+else
+[x y] = Segmentation(Ir);
 h = scatter(x,y,1,'.');
 h.MarkerEdgeColor = 'r' ;
 h.MarkerFaceColor = 'none'
 h.MarkerEdgeAlpha = .1;
+end
+
+
 
 data.text2.String = 'If the match is good, close te GUI window to get the GUI function output. To try again push NEW ANCHOR'
-
+handles.TransIMG = Ir; % cropped image
 guidata(obj, handles);
 
 % --- Executes on button press in load_imageA.
@@ -282,18 +294,43 @@ delete(h);
 % --- Executes on slider movement.
 function Control_segmentation_Callback(hObject, eventdata, handles)
 
- Zoom on
+% Zoom on
 data = guidata(hObject);
 t =round(get(hObject,'Value')) ; 
+t
 
 % Axes 2
 axes(data.axes2); cla
-[x y] = Segmentation(Ir,t);
-imshow(J); hold on
-h = scatter(x,y,1,'.')
+imshow(imadjust(handles.Img2)); hold on
+if handles.COSFIREout
+    
+    if isfield(handles,'cs') % depends on at which point you click COSFIRE
+        cs = handles.cs;
+    else
+        cs = COSFIRESegmentation(imadjust(handles.TransIMG));
+        handles.cs = cs;
+        
+    end
+ 
+[c h] = contour(cs.respimage,[t t]);
+h.Color = 'r';
+else 
+[x y] = Segmentation(Ir);
+h = scatter(x,y,1,'.');
 h.MarkerEdgeColor = 'r' ;
 h.MarkerFaceColor = 'none'
-h.MarkerEdgeAlpha = .1
+h.MarkerEdgeAlpha = .1;
+end
+
+
+% % Axes 2
+% axes(data.axes2); cla
+% [x y] = Segmentation(Ir,t);
+% imshow(J); hold on
+% h = scatter(x,y,1,'.')
+% h.MarkerEdgeColor = 'r' ;
+% h.MarkerFaceColor = 'none'
+% h.MarkerEdgeAlpha = .1
 
 guidata(hObject, handles);
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -385,3 +422,16 @@ data = guidata(hObject);
 handles.Features_anchors = [];
 axes(data.axes1);xl = xlim; yl=ylim; imshow(imadjust(handles.Img1)); xlim(xl); ylim(yl);
 axes(data.axes2);xl = xlim; yl=ylim;imshow(imadjust(handles.Img2)); xlim(xl); ylim(yl);
+
+
+% --- Executes on button press in COSFIRE.
+function COSFIRE_Callback(hObject, eventdata, handles)
+data = guidata(hObject);
+handles.COSFIREout =  get(hObject,'Value');
+data.text2.String = 'Be sure COSFIRE repository is added to the path';
+if handles.COSFIREout 
+handles.Control_segmentation.Visible = 'on';
+else
+handles.Control_segmentation.Visible = 'off';
+end
+guidata(hObject, handles);

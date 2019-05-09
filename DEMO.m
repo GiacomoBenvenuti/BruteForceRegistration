@@ -60,7 +60,7 @@ title('Fix image')
 subplot(133)
 imshow(I2); hold on 
 title('Transformation ')
-%% Apply same transformation to the Retino matrix
+%% --> Apply same transformation to the Retino matrix
 
 clear M J2
 tform= fitgeotrans( fixpoints,movingpoints,'projective');
@@ -82,6 +82,7 @@ caxis([-10 200])
 colormap(gray)
 zlim([0 6])
 view([110   25])
+
 
 %%
 
